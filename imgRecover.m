@@ -8,12 +8,13 @@ A = dctmtx(blkSize^2);
 blocks = imblock_ren(imgIn,blkSize);
 
 
-lambda = floor(linspace(numSample/10,numSample,5));
+lambda = 10:10:50;
 Error = zeros(size(lambda));
 setSize = size(blocks,2)/4; % 4-fold
 
 for L=1:length(lambda)
     for s=1:4
+        display(['set=' num2str(s) ' lambda=' num2str(lambda(L))]);
         if(s==1)
             trainSet = blocks(:,(setSize+1):end);
         elseif(s==4)
@@ -42,8 +43,8 @@ for L=1:length(lambda)
             F = B;
             omega = [];
             a = zeros(1,blkSize^2); % Convenient for debug
+            % Find Ai with largest inner product
             for p=1:lambda(L)
-                % Find Ai with largest inner product
                 index = 0;
                 prod = 0;
                 for n=1:blkSize^2 % optimize later (dont iterate if it's been picked)
@@ -54,7 +55,6 @@ for L=1:length(lambda)
                     end
                 end
                 omega = [omega index];
-                
                 % solve for alpha using residuals
                 alpha(omega) = C(:,omega)\B;
                 % Calculating residue with Ai & ai
@@ -63,7 +63,7 @@ for L=1:length(lambda)
         end
         % Solve for testSet alpha using omega from training set
         for blk=1:size(testSet,2)
-            B=trainSet(ind,blk);
+            B=testSet(ind,blk);
             alpha(omega) = C(:,omega)\B;
             sol(:,blk) = A*alpha;
         end

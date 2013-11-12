@@ -1,19 +1,19 @@
 clear all;
 close all;
 
-blocklen = 8;
-A = dctmtx(blocklen^2);
+K = 8;
+A = dctmtx_ren(K);
 image = imgRead('fishing_boat.bmp');
-blocks = imblock_ren(image,blocklen);
+blocks = imblock_ren(image,K);
+%%
 lambda=[30];
 
 for blk=1:size(blocks,2)
-    cSensed(:,blk) = blockRecover(blocks(:,blk),blkSize,numSample);
-    ind=sort(randperm(blocklen^2,lambda(end)));
+    ind=sort(randperm(K^2,lambda(end)));
     B=blocks(ind,blk);
     C = A(ind,:);
     normC=A(ind,:);
-    norms = zeros(1,blocklen^2);
+    norms = zeros(1,K^2);
     means = mean(normC);
     for n=1:size(normC,2)
         norms(n) = norm(normC(:,n));
@@ -22,15 +22,15 @@ for blk=1:size(blocks,2)
     end
 
     prod=0;
-    alpha=zeros(blocklen^2,1);
+    alpha=zeros(K^2,1);
     F = B;
     omega = [];
-    a = zeros(1,blocklen^2); % Convenient for debug
+    a = zeros(1,K^2); % Convenient for debug
     for p=1:lambda
         % Find Ai with largest inner product
         index = 0;
         prod = 0;
-        for n=1:blocklen^2 % optimize later (dont iterate if it's been picked)
+        for n=1:K^2 % optimize later (dont iterate if it's been picked)
             a(n) = abs(F'*normC(:,n));
             if(a(n)>prod && (sum(omega==n)==0))
                 prod=a(n);
