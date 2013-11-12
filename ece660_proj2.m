@@ -5,11 +5,10 @@ blocklen = 8;
 A = dctmtx(blocklen^2);
 image = imgRead('fishing_boat.bmp');
 blocks = imblock_ren(image,blocklen);
-
-
-lambda=[50];
+lambda=[30];
 
 for blk=1:size(blocks,2)
+    cSensed(:,blk) = blockRecover(blocks(:,blk),blkSize,numSample);
     ind=sort(randperm(blocklen^2,lambda(end)));
     B=blocks(ind,blk);
     C = A(ind,:);
@@ -50,14 +49,14 @@ for blk=1:size(blocks,2)
         F = B - C*alpha;
         %     norm(F)
     end
-    csampled(:,blk) = A*alpha;
+    cSensed(:,blk) = A*alpha;
     blk
 end
 %%
 figure;
-subplot(131), imgShow(imassemble_ren(csampled,size(image,1),size(image,2)));
-title('Compressed Sampling');
-subplot(132), imgShow(medfilt2(imassemble_ren(csampled,size(image,1),size(image,2)),[3 3]));
+subplot(131), imgShow(imassemble_ren(cSensed,size(image,1),size(image,2)));
+title('Compressed Sensing');
+subplot(132), imgShow(medfilt2(imassemble_ren(cSensed,size(image,1),size(image,2)),[3 3]));
 title('Median Filtered');
 subplot(133), imgShow(image);
 title('Original');
@@ -69,3 +68,16 @@ title('Original');
 
 % figure;
 % imgShow(imassemble_ren(blocks,25,24));
+
+lambda = 10:10:50;
+Error = zero(1,length(lambda));
+setSize = size
+for L=1:length(lambda)
+    for set=1:4
+        
+        orig
+        cSensed
+        Error(set) = imgCompare(orig,cSensed);
+
+    end
+end
