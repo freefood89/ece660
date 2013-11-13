@@ -16,7 +16,7 @@ omega = [];
 a = zeros(1,K^2); % Convenient for debug
 for p=1:lambda
     % Find Ai with largest inner product
-    index = 0;
+    index = 1;
     prod = 0;
     for n=1:K^2 % optimize later (dont iterate if it's been picked)
         a(n) = abs(F'*normC(:,n));
@@ -28,9 +28,7 @@ for p=1:lambda
     omega = [omega index];
     
     % solve for alpha using residuals
-    for n=1:length(omega)
-        alpha(omega) = C(:,omega)\B;
-    end
+    alpha(omega) = C(:,omega)\B;
     % Calculating residue with Ai & ai
     F = B - C*alpha;
 end
