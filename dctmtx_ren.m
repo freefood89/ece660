@@ -2,7 +2,7 @@ function A = dctmtx_ren(n)
 c = sqrt(2/n);
 u = 1:n;
 v = 1:n;
-% A = zeros(n^2);
+A = zeros(n^2);
 for y=1:n
     for x=1:n
 

@@ -24,13 +24,9 @@ for blk=1:size(blocks,2)
         end
     end
     lambda = lambdas(Error==min(Error));
-%     lambda=20;
     alpha = OMP_ren(blocks(ind,blk),A(ind,:),K,lambda);
     cSensed(:,blk) = A*alpha;
     [blk, lambda]
-    if(lambda~=10)
-% %         figure, plot(lambdas,Error);
-    end
 end
 imgOut = imassemble_ren(cSensed,size(imgIn,1),size(imgIn,2));
 end
