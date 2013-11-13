@@ -1,132 +1,36 @@
-function imOut = imgRecover(imgIn,blkSize,numSample)
+function imgOut = imgRecover(imgIn,blkSize,numSample)
 
-% EXAMPLE:
-% blkSize = 8;
-% imgIn = imgRead('fishing_boat.bmp');
-% numSample=30;
-A = dctmtx(blkSize^2);
-blocks = imblock_ren(imgIn,blkSize);
-
-
-lambda = 10:10:50;
-Error = zeros(size(lambda));
-setSize = size(blocks,2)/4; % 4-fold
-
-for L=1:length(lambda)
-    for s=1:4
-        display(['set=' num2str(s) ' lambda=' num2str(lambda(L))]);
-        if(s==1)
-            trainSet = blocks(:,(setSize+1):end);
-        elseif(s==4)
-            trainSet = blocks(:,1:(end-setSize));
-        else
-            trainSet = blocks(:,[(1:s*(setSize-1)) (s*setSize+1:end)]);
-        end
-        testSet = blocks(:,((s-1)*setSize+1):(s*setSize));
-        
-        for blk=1:size(trainSet,2)
-            ind=sort(randperm(blkSize^2,lambda(L)));
-            B=trainSet(ind,blk);
-            C = A(ind,:);
-            normC=A(ind,:);
-            norms = zeros(1,blkSize^2);
-            means = mean(normC);
-            for n=1:size(normC,2)
-                norms(n) = norm(normC(:,n));
-                normC(:,n) = normC(:,n)-means(n);
-                normC(:,n) = normC(:,n)/norm(normC(:,n));
-            end
-            
-            % find lambda(L) most orthogonal Ai vectors
-            prod=0;
-            alpha=zeros(blkSize^2,1);
-            F = B;
-            omega = [];
-            a = zeros(1,blkSize^2); % Convenient for debug
-            % Find Ai with largest inner product
-            for p=1:lambda(L)
-                index = 0;
-                prod = 0;
-                for n=1:blkSize^2 % optimize later (dont iterate if it's been picked)
-                    a(n) = abs(F'*normC(:,n));
-                    if(a(n)>prod && (sum(omega==n)==0))
-                        prod=a(n);
-                        index=n;
-                    end
-                end
-                omega = [omega index];
-                % solve for alpha using residuals
-                alpha(omega) = C(:,omega)\B;
-                % Calculating residue with Ai & ai
-                F = B - C*alpha;
-            end
-        end
-        % Solve for testSet alpha using omega from training set
-        for blk=1:size(testSet,2)
-            B=testSet(ind,blk);
-            alpha(omega) = C(:,omega)\B;
-            sol(:,blk) = A*alpha;
-        end
-        Error(L) = Error(L) + imgCompare(testSet,sol)/4;
-    end
-end
-figure, plot(lambda,Error);
-
-lambda_best = lambda(Error==min(Error));
-lambda_best = lambda_best(1);
-
-%% Solve using best Lambda
-
+S = numSample;
+K = blkSize;
+blocks = imblock_ren(imgIn,K);
+cSensed = zeros(size(blocks));
+A = dctmtx_ren(K);
 for blk=1:size(blocks,2)
-    ind=sort(randperm(blkSize^2,lambda_best));
-    B=blocks(ind,blk);
-    C = A(ind,:);
-    normC=A(ind,:);
-    norms = zeros(1,blkSize^2);
-    means = mean(normC);
-    for n=1:size(normC,2)
-        norms(n) = norm(normC(:,n));
-        normC(:,n) = normC(:,n)-means(n);
-        normC(:,n) = normC(:,n)/norm(normC(:,n));
-    end
-    
-    prod=0;
-    alpha=zeros(blkSize^2,1);
-    F = B;
-    omega = [];
-    a = zeros(1,blkSize^2); % Convenient for debug
-    for p=1:lambda_best
-        % Find Ai with largest inner product
-        index = 0;
-        prod = 0;
-        for n=1:blkSize^2 % optimize later (dont iterate if it's been picked)
-            a(n) = abs(F'*normC(:,n));
-            if(a(n)>prod && (sum(omega==n)==0))
-                prod=a(n);
-                index=n;
-            end
+    ind=sort(randperm(K^2,S)); % indexes of working set
+    m = floor(S/6); % number of elements in test set
+    lambdas = 5:5:20;
+    Error = zeros(1,length(lambdas));
+    for L=1:length(lambdas)
+        for iter=1:min(lambdas(L),20)
+            iTest = randperm(length(ind),m);
+            iTrain = ind;
+            iTrain(iTest) = []; % remove testing set from training set
+            iTest = ind(sort(iTest)); % indexes of test Set
+            
+            trainSet = blocks(iTrain,blk);
+            alpha = OMP_ren(trainSet,A(iTrain,:),K,lambdas(L));
+            eps = A(iTest,:)*alpha -  blocks(iTest,blk);
+            Error(L) = Error(L) + sum(eps.^2)/(K^2)/length(iTest);
         end
-        %     plot(a), title(['A_i, i=' num2str(p)]);
-        %     display(index);
-        omega = [omega index];
-        
-        % solve for alpha using residuals
-        for n=1:length(omega)
-            alpha(omega) = C(:,omega)\B;
-        end
-        % Calculating residue with Ai & ai
-        F = B - C*alpha;
     end
+    lambda = lambdas(Error==min(Error));
+%     lambda=20;
+    alpha = OMP_ren(blocks(ind,blk),A(ind,:),K,lambda);
     cSensed(:,blk) = A*alpha;
-    blk
+    [blk, lambda]
+    if(lambda~=10)
+% %         figure, plot(lambdas,Error);
+    end
 end
-
-imOut = imassemble_ren(cSensed,size(imgIn,1),size(imgIn,2));
-% figure;
-% subplot(131), imgShow(imassemble_ren(cSensed,size(imgIn,1),size(imgIn,2)));
-% title('Compressed Sensing');
-% subplot(132), imgShow(medfilt2(imassemble_ren(cSensed,size(imgIn,1),size(imgIn,2)),[3 3]));
-% title('Median Filtered');
-% subplot(133), imgShow(imgIn);
-% title('Original');
+imgOut = imassemble_ren(cSensed,size(imgIn,1),size(imgIn,2));
 end
