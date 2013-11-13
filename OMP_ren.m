@@ -1,13 +1,13 @@
 function alpha = OMP_ren(B,C,K,lambda)
 
 normC=C;
-norms = zeros(1,K^2);
-means = mean(normC);
-for n=1:size(normC,2)
-    norms(n) = norm(normC(:,n));
-    normC(:,n) = normC(:,n)-means(n);
-    normC(:,n) = normC(:,n)/norm(normC(:,n));
-end
+% norms = zeros(1,K^2);
+% means = mean(normC);
+% for n=1:size(normC,2)
+%     norms(n) = norm(normC(:,n));
+%     normC(:,n) = normC(:,n)-means(n);
+%     normC(:,n) = normC(:,n)/norm(normC(:,n));
+% end
 
 prod=0;
 alpha=zeros(K^2,1);
