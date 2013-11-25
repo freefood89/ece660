@@ -19,13 +19,12 @@ err = 1;
 % Set the error 2*tol to make sure the loop runs at least once
 while (err/2) > tol
 
-    :
+    
 % Execute the cost function at the current iteration
 % F : function value, G : gradient, H, hessian
 [F, G, H] = feval(costFcn,Z);
 
-    :
-    :
+   
     
 end
 
