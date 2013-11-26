@@ -27,6 +27,7 @@ while (err/2) > tol
    
     
 end
+end
 
 
 
