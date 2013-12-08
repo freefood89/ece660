@@ -2,6 +2,7 @@ close all;
 clear all;
 
 load feaSubEImg.mat;
+
 class1 = cell2mat(class(:,1));
 class2 = cell2mat(class(:,2));
 
