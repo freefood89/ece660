@@ -18,17 +18,26 @@ function optLamda = getOptLamda(X, Y, setPara)
 % @ 2011 Kiho Kwak -- kkwak@andrew.cmu.edu
 
 lambdas = [.01 1 100 1000];
-E = zeros(1,length(lambdas));
-for n=1:length(lambdas)
-    lambda = lambdas(n);
-
-    % init_Z = [W, C, zeta];
-    while (t <= Tmax)
+E = zeros(5,length(lambdas));
+for set=1:5
+    index5 = 1:100;
+    index5(20*(n-1)+1:20*n) = [];
+    Xtrain = [X(1,index5) X(2,index5)];
+    Y = [Y(1,index5) Y(2,index5)];
+    for n=1:length(lambdas)
+        lambda = lambdas(n);
         
-        [optSolution, err] = solveOptProb_NM(@costFcn, init_Z,tol);
-  
+        % Solve for each lambda
+        % init_Z = [W, C,  zeta];
+        while (t <= Tmax)
+            
+            [optSolution, err] = solveOptProb_NM(@costFcn,init_Z,tol);
+            
+        end
+        % use solution classifier on test set
+        E(set,n) = err;
     end
-    E(n) = err;
 end
+E = mean(E); % average the errors
 optLambda = lambdas(E==min(E));
 end
