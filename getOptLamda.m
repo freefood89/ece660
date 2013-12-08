@@ -20,24 +20,21 @@ function optLamda = getOptLamda(X, Y, setPara)
 lambdas = [.01 1 100 1000];
 E = zeros(5,length(lambdas));
 for set=1:5
+    % Define training set
     index5 = 1:100;
-    index5(20*(n-1)+1:20*n) = [];
-    Xtrain = [X(1,index5) X(2,index5)];
-    Y = [Y(1,index5) Y(2,index5)];
+    index5(20*(set-1)+1:20*set) = [];
+    Xtrain = [X(:,index5) X(:,100+index5)];
+
+    % Solve for optimum solution for each lambda
     for n=1:length(lambdas)
         lambda = lambdas(n);
-        
-        % Solve for each lambda
         % init_Z = [W, C,  zeta];
         while (t <= Tmax)
-            
-            [optSolution, err] = solveOptProb_NM(@costFcn,init_Z,tol);
-            
+            [optSolution, err] = solveOptProb_NM(@costFcn,init_Z,Xtrain,tol);
         end
-        % use solution classifier on test set
-        E(set,n) = err;
     end
+    
 end
-E = mean(E); % average the errors
-optLambda = lambdas(E==min(E));
+E = mean(E); % average the errors across sets
+optLambda = lambdas(E==min(E)); % return lambda with lowest mean error
 end
