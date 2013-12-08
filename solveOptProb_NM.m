@@ -8,7 +8,7 @@ function [optSolution, err] = solveOptProb_NM(costFcn,init_Z,tol)
 %
 % OUTPUTS:
 %   optSolution: Optimal soultion
-%   err: Errorr
+%   err: Error
 %
 % @ 2011 Kiho Kwak -- kkwak@andrew.cmu.edu
 
