@@ -21,12 +21,12 @@ for n=1:6
     lambda = getOptLambda(Xtrain,Ytrain,params); 
    
     % Re-solve entire training set using best lambda
-    [sol, err] = solveOptProb_NM(@costFcn,lambda,Xtrain);
+%     [sol, err] = solveOptProb_NM(@costFcn,lambda,Xtrain);
     
     % Classify testing set
-    Xtest = [class1(:,(n-1)*20+1:n*20) class2(:,numTrial+(n-1)*20+1:n*20)];
-    res = 2*(sol(1:204)'*Xtest+sol(205)>=0)-1;
+%     Xtest = [class1(:,(n-1)*20+1:n*20) class2(:,numTrial+(n-1)*20+1:n*20)];
+%     res = 2*(sol(1:204)'*Xtest+sol(205)>=0)-1;
     
-    % Store classification error
-    Ac(n) = sum(result==Ytest);
+    % Store classification accuracy
+%     Ac(n) = sum(result==Ytest);
 end
